@@ -35,6 +35,7 @@ enum ControlIndex {
   EnableFLARMGauge,
   AutoCloseFlarmDialog,
   TAPosition,
+  TAType,
   EnableThermalProfile,
   FinalGlideBarDisplayModeControl,
   EnableFinalGlideBarMC0,
@@ -70,6 +71,18 @@ static constexpr StaticEnumChoice thermal_assistant_position_list[] = {
   { 0 }
 };
 
+static constexpr StaticEnumChoice thermal_assistant_type_list[] = {
+  { (unsigned)UISettings::ThermalAssistantType::POLYGON,
+    N_("Polygon"),
+    N_("Display a polygon, the stength of lift is equal to the distance from the centre.") },
+  { (unsigned)UISettings::ThermalAssistantType::CIRCLES,
+    N_("Circles"),
+    N_("Dispaly a ring of circles, with the size and colour of the circles indicating the strength of the lift.") },
+  { (unsigned)UISettings::ThermalAssistantType::BOTH,
+    N_("Both"),
+    N_("Display both polygon and circles.") },
+  { 0 }
+};
 
 class GaugesConfigPanel final : public RowFormWidget, DataFieldListener {
 public:
@@ -118,6 +131,12 @@ GaugesConfigPanel::Prepare(ContainerWindow &parent,
             (unsigned)ui_settings.thermal_assistant_position,
             this);
 
+  AddEnum(_("Thermal assistant type"),
+            _("Select the type of thermal assistant shown."),
+            thermal_assistant_type_list,
+            (unsigned)ui_settings.thermal_assistant_type,
+            this);
+
   AddBoolean(_("Thermal band"),
              _("This enables the display of the thermal profile (climb band) display on the map."),
              map_settings.show_thermal_profile);
@@ -162,6 +181,10 @@ GaugesConfigPanel::Save(bool &_changed) noexcept
 
   if (SaveValueEnum(TAPosition, ProfileKeys::TAPosition,
                     ui_settings.thermal_assistant_position))
+    CommonInterface::main_window->ReinitialiseLayout();
+
+  if (SaveValueEnum(TAType,ProfileKeys::TAType,
+                    ui_settings.thermal_assistant_type))
     CommonInterface::main_window->ReinitialiseLayout();
 
   changed |= SaveValue(EnableThermalProfile, ProfileKeys::EnableThermalProfile,

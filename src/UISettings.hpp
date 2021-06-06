@@ -61,6 +61,13 @@ struct UISettings {
     BOTTOM_RIGHT_AVOID_IB,
   } thermal_assistant_position;
 
+  /** Thermal Assistant Type */
+  enum class ThermalAssistantType: uint8_t {
+    POLYGON,
+    CIRCLES,
+    BOTH,
+  } thermal_assistant_type;
+
   /** Enable warning dialog */
   bool enable_airspace_warning_dialog;
 

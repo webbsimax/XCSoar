@@ -142,6 +142,9 @@ Profile::Load(const ProfileMap &map, UISettings &settings)
         : UISettings::ThermalAssistantPosition::OFF;
     }
   }
+
+  map.GetEnum(ProfileKeys::TAType, settings.thermal_assistant_type);
+
   map.Get(ProfileKeys::AirspaceWarningDialog, settings.enable_airspace_warning_dialog);
 
   map.GetEnum(ProfileKeys::AppStatusMessageAlignment, settings.popup_message_position);

@@ -46,6 +46,18 @@ class ThermalAssistantRenderer
     PixelPoint GetAverage() const;
   };
 
+//TODO: TIDY THIS UP
+  //class TAPoints: public std::array<PixelPoint, 
+
+  //class TAPoints: public std::array<BulkPixelPoint, 
+
+  class TAPoints: public std::array<PixelPoint, 
+                                      std::tuple_size<LiftDatabase>::value>
+  {
+  public:
+    PixelPoint GetAverage() const;
+  };
+
 protected:
   const ThermalAssistantLook &look;
 
@@ -100,10 +112,12 @@ protected:
   static double NormalizeLift(double lift, double max_lift);
 
   void CalculateLiftPoints(LiftPoints &lift_points, double max_lift) const;
+  void CalculateLiftCircles(TAPoints &ta_points) const;
   double CalculateMaxLift() const;
   void PaintRadarPlane(Canvas &canvas) const;
   void PaintRadarBackground(Canvas &canvas, double max_lift) const;
-  void PaintPoints(Canvas &canvas, const LiftPoints &lift_points) const;
+  void PaintCircles(Canvas &canvas, const TAPoints &ta_points, double &max_lift) const;
+  void PaintPolygon(Canvas &canvas, const LiftPoints &lift_points) const;
   void PaintAdvisor(Canvas &canvas, const LiftPoints &lift_points) const;
   void PaintNotCircling(Canvas &canvas) const;
 };

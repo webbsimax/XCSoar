@@ -31,6 +31,8 @@
 #include "Formatter/UserUnits.hpp"
 #include "Language/Language.hpp"
 #include "Look/ThermalAssistantLook.hpp"
+#include "UISettings.hpp"
+#include "Interface.hpp"
 
 #ifdef ENABLE_OPENGL
 #include "ui/canvas/opengl/Scope.hpp"
@@ -100,6 +102,31 @@ ThermalAssistantRenderer::CalculateLiftPoints(LiftPoints &lift_points,
   }
 }
 
+void
+ThermalAssistantRenderer::CalculateLiftCircles(TAPoints &ta_points) const
+{
+  Angle angle = -direction;
+  
+  constexpr Angle delta = Angle::FullCircle() / unsigned(std::tuple_size<LiftDatabase>());
+
+  for (unsigned i = 0; i < ta_points.size(); i++, angle += delta ) {
+    auto sincos = angle.SinCos();
+    //N/(N+pi) gives the radius of a circle such that N circles will touch
+    double scale = radius * ta_points.size() / (ta_points.size() + 3.1415);
+    
+    ta_points[i].x = (int)(sincos.second * scale);
+    ta_points[i].y = (int)(sincos.first * scale);
+
+    if (!circling.TurningLeft()) {
+      ta_points[i].x *= -1;
+      ta_points[i].y *= -1;
+    }
+    
+    ta_points[i].x += mid.x;
+    ta_points[i].y += mid.y;
+  }
+}
+
 double
 ThermalAssistantRenderer::NormalizeLift(double lift, double max_lift)
 {
@@ -109,22 +136,26 @@ ThermalAssistantRenderer::NormalizeLift(double lift, double max_lift)
 
 void
 ThermalAssistantRenderer::PaintRadarPlane(Canvas &canvas) const
-{
+{  
+  const UISettings::ThermalAssistantType ta_type = CommonInterface::GetUISettings().thermal_assistant_type;
+
   canvas.Select(look.plane_pen);
 
-  PixelPoint p = mid.At(circling.TurningLeft() ? (int)radius : (int)-radius,
-                        0);
+  int x = (ta_type == UISettings::ThermalAssistantType::POLYGON) ? radius : 0.8514 * radius;
+  PixelPoint p = mid.At(circling.TurningLeft() ? (int)x : (int)-x, 0);
+
+  canvas.Select(look.plane_pen);
 
   canvas.DrawLine(p.At(+Layout::FastScale(small ? 5 : 10),
                        -Layout::FastScale(small ? 1 : 2)),
                   p.At(-Layout::FastScale(small ? 5 : 10),
                        -Layout::FastScale(small ? 1 : 2)));
-  canvas.DrawLine(p.At(0, -Layout::FastScale(small ? 3 : 6)),
-                  p.At(0, +Layout::FastScale(small ? 3 : 6)));
-  canvas.DrawLine(p.At(+Layout::FastScale(small ? 2 : 4),
-                       +Layout::FastScale(small ? 2 : 4)),
+  canvas.DrawLine(p.At(0,-Layout::FastScale(small ? 3 : 6)),
+                  p.At(0,+Layout::FastScale(small ? 3 : 6)));
+  canvas.DrawLine(p.At(Layout::FastScale(small ? 2 : 4),
+                      +Layout::FastScale(small ? 2 : 4)),
                   p.At(-Layout::FastScale(small ? 2 : 4),
-                       +Layout::FastScale(small ? 2 : 4)));
+                      +Layout::FastScale(small ? 2 : 4)));
 }
 
 static void
@@ -151,8 +182,10 @@ ThermalAssistantRenderer::PaintRadarBackground(Canvas &canvas, double max_lift) 
 {
   canvas.SelectHollowBrush();
 
-  canvas.Select(look.inner_circle_pen);
-  canvas.DrawCircle(mid, radius / 2);
+  if (CommonInterface::GetUISettings().thermal_assistant_type == UISettings::ThermalAssistantType::POLYGON){
+    canvas.Select(look.inner_circle_pen); 
+    canvas.DrawCircle(mid, radius / 2);
+  }
   canvas.Select(look.outer_circle_pen);
   canvas.DrawCircle(mid, radius);
 
@@ -171,7 +204,7 @@ ThermalAssistantRenderer::PaintRadarBackground(Canvas &canvas, double max_lift) 
 }
 
 void
-ThermalAssistantRenderer::PaintPoints(Canvas &canvas,
+ThermalAssistantRenderer::PaintPolygon(Canvas &canvas,
                                     const LiftPoints &lift_points) const
 {
 #ifdef ENABLE_OPENGL
@@ -183,6 +216,47 @@ ThermalAssistantRenderer::PaintPoints(Canvas &canvas,
   canvas.Select(look.polygon_brush);
   canvas.Select(look.polygon_pen);
   canvas.DrawPolygon(lift_points.data(), lift_points.size());
+}
+
+void
+ThermalAssistantRenderer::PaintCircles(Canvas &canvas, const TAPoints &ta_points,
+                                                double &max_lift) const
+{
+#ifdef ENABLE_OPENGL
+  const ScopeAlphaBlend alpha_blend;
+#elif defined(USE_GDI)
+  canvas.SetMixMask();
+#endif /* GDI */
+  
+  double circle_max_lift = CalculateMaxLift();
+  const double max_circle_size = 0.1745 * radius; // ~2*pi / 36
+  for (unsigned i =  0; i < ta_points.size(); i++){
+    const ComputerSettings &settings_computer = CommonInterface::GetComputerSettings();
+    double macready = settings_computer.polar.glide_polar_task.GetMC();
+    
+    int j = circling.TurningLeft() ? ta_points.size() - i : i;
+    /** Order the drawing of circles, so that you're always flying towards the overlap */
+    
+    double segment_lift = vario.lift_database[j];
+   
+    canvas.Select(look.lift_pen);
+    if (segment_lift == circle_max_lift){
+      canvas.Select(look.max_lift_brush);
+    }
+    else if (segment_lift >= macready){
+      canvas.Select(look.good_lift_brush);
+    }
+    else if (segment_lift > 0){
+      canvas.Select(look.bad_lift_brush);
+    }
+    else {
+      canvas.Select(look.sink_brush);
+    }
+
+    double circle_size = max_circle_size * std::abs(segment_lift) / circle_max_lift;
+    circle_size = std::min(max_circle_size, circle_size); /** deal with negative circles */
+    canvas.DrawCircle(ta_points[j],(int)circle_size);
+  }
 }
 
 void
@@ -224,9 +298,26 @@ ThermalAssistantRenderer::Paint(Canvas &canvas)
   }
 
   LiftPoints lift_points;
-  CalculateLiftPoints(lift_points, max_lift);
-  PaintPoints(canvas, lift_points);
-  PaintAdvisor(canvas, lift_points);
-
+  TAPoints ta_points;
+  
+  const UISettings::ThermalAssistantType ta_type = CommonInterface::GetUISettings().thermal_assistant_type;
+  
+  if (ta_type == UISettings::ThermalAssistantType::POLYGON){
+    CalculateLiftPoints(lift_points, max_lift);
+    PaintPolygon(canvas,lift_points);
+    PaintAdvisor(canvas, lift_points);
+  }
+  else if (ta_type == UISettings::ThermalAssistantType::CIRCLES){
+    CalculateLiftCircles(ta_points);
+    PaintCircles(canvas,ta_points,max_lift);
+    PaintAdvisor(canvas, lift_points);
+  }
+  else { //BOTH
+    CalculateLiftCircles(ta_points);
+    PaintCircles(canvas,ta_points,max_lift);
+    CalculateLiftPoints(lift_points, max_lift);
+    PaintPolygon(canvas,lift_points);
+    PaintAdvisor(canvas, lift_points);
+  }
   PaintRadarPlane(canvas);
 }

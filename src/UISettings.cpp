@@ -36,6 +36,8 @@ UISettings::SetDefaults()
 
   thermal_assistant_position = ThermalAssistantPosition::BOTTOM_LEFT;
 
+  thermal_assistant_type = ThermalAssistantType::POLYGON;
+
   enable_airspace_warning_dialog = true;
 
   popup_message_position = PopupMessagePosition::CENTER;
