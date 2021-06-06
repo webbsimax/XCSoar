@@ -40,6 +40,9 @@ ThermalAssistantLook::Initialise(bool small, bool inverse)
 #else /* !OPENGL */
   polygon_pen.Create(width, polygon_border_color);
 #endif /* !OPENGL */
+
+  background_color = inverse ? COLOR_BLACK : COLOR_WHITE;
+  
   inner_circle_pen.Create(1, circle_color);
   outer_circle_pen.Create(Pen::DASH2, 1, circle_color);
   plane_pen.Create(width, inverse ? COLOR_WHITE : COLOR_BLACK);

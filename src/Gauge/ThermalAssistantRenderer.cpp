@@ -188,14 +188,16 @@ ThermalAssistantRenderer::PaintRadarBackground(Canvas &canvas, double max_lift) 
   }
   canvas.Select(look.outer_circle_pen);
   canvas.DrawCircle(mid, radius);
+  
+  canvas.SetBackgroundColor(look.background_color);
+  canvas.SetBackgroundOpaque();
 
   if (small)
     return;
 
   canvas.SetTextColor(COLOR_BLACK);
   canvas.Select(look.circle_label_font);
-  canvas.SetBackgroundColor(look.background_color);
-  canvas.SetBackgroundOpaque();
+
 
   DrawCircleLabelVSpeed(canvas, mid + PixelSize{0u, radius}, max_lift);
   DrawCircleLabelVSpeed(canvas, mid + PixelSize{0u, radius / 2}, 0);
