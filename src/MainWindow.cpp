@@ -292,29 +292,44 @@ MainWindow::ReinitialiseLayoutTA(PixelRect rc,
 {
   unsigned sz = std::min(layout.control_size.height,
                          layout.control_size.width) * 2;
-
+  
   switch (CommonInterface::GetUISettings().thermal_assistant_position) {
   case (UISettings::ThermalAssistantPosition::BOTTOM_LEFT_AVOID_IB):
     rc.bottom = GetMainRect().bottom;
     rc.left = GetMainRect().left;
     rc.right = rc.left + sz;
+    rc.top = rc.bottom - sz;
     break;
   case (UISettings::ThermalAssistantPosition::BOTTOM_RIGHT_AVOID_IB):
     rc.bottom = GetMainRect().bottom;
     rc.right = GetMainRect().right;
     rc.left = rc.right - sz;
+    rc.top = rc.bottom - sz;
     break;
   case (UISettings::ThermalAssistantPosition::BOTTOM_RIGHT):
     rc.right = GetMainRect().right;
     rc.left = rc.right - sz;
+    rc.top = rc.bottom - sz;
+    break;
+  case (UISettings::ThermalAssistantPosition::BOTTOM_CENTRE):
+    rc.left = GetMainRect().GetCenter().x - sz / 2;
+    rc.right = rc.left + sz;
+    rc.bottom = GetMainRect().bottom;
+    rc.top = rc.bottom - sz;
+    break;
+  case (UISettings::ThermalAssistantPosition::TOP_CENTRE):
+    rc.left = GetMainRect().GetCenter().x - sz / 2;
+    rc.right = rc.left + sz;
+    rc.top = GetMainRect().top;
+    rc.bottom = rc.top + sz;
     break;
   default: // BOTTOM_LEFT
     rc.left = GetMainRect().left;
     rc.right = rc.left + sz;
+    rc.top = rc.bottom - sz;
     break;
   } 
-  rc.top = rc.bottom - sz;
-  thermal_assistant.Move(rc);
+  thermal_assistant.Move(rc); 
 }
 
 void

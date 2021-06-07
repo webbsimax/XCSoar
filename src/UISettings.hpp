@@ -59,6 +59,8 @@ struct UISettings {
     BOTTOM_LEFT_AVOID_IB,
     BOTTOM_RIGHT,
     BOTTOM_RIGHT_AVOID_IB,
+    BOTTOM_CENTRE,
+    TOP_CENTRE,
   } thermal_assistant_position;
 
   /** Thermal Assistant Type */

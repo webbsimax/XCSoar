@@ -68,6 +68,12 @@ static constexpr StaticEnumChoice thermal_assistant_position_list[] = {
   { (unsigned)UISettings::ThermalAssistantPosition::BOTTOM_RIGHT_AVOID_IB,
     N_("Bottom right (avoid infoboxes)"),
     N_("Show thermal assistant in bottom right above/to left of infoboxes (if there).") },
+  { (unsigned)UISettings::ThermalAssistantPosition::BOTTOM_CENTRE,
+    N_("Bottom centre (avoid infoboxes)"),
+    N_("Show thermal assistant in centre, above infoboxes (if there).") },
+  { (unsigned)UISettings::ThermalAssistantPosition::TOP_CENTRE,
+    N_("Top centre (avoid infoboxes)"),
+    N_("Show thermal assistant in top centre, below infoboxes (if there).") },
   { 0 }
 };
 
