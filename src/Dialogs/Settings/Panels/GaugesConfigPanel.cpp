@@ -36,6 +36,7 @@ enum ControlIndex {
   AutoCloseFlarmDialog,
   TAPosition,
   TAType,
+  TAInvert,
   EnableThermalProfile,
   FinalGlideBarDisplayModeControl,
   EnableFinalGlideBarMC0,
@@ -143,6 +144,10 @@ GaugesConfigPanel::Prepare(ContainerWindow &parent,
             (unsigned)ui_settings.thermal_assistant_type,
             this);
 
+  AddBoolean(_("Invert thermal assistant"),
+            _("Invert the colors of the thermal assistant"),
+            (unsigned)ui_settings.thermal_assistant_invert);
+
   AddBoolean(_("Thermal band"),
              _("This enables the display of the thermal profile (climb band) display on the map."),
              map_settings.show_thermal_profile);
@@ -191,6 +196,10 @@ GaugesConfigPanel::Save(bool &_changed) noexcept
 
   if (SaveValueEnum(TAType,ProfileKeys::TAType,
                     ui_settings.thermal_assistant_type))
+    CommonInterface::main_window->ReinitialiseLayout();
+  //PUT IF IN
+  changed |= SaveValue(TAInvert,ProfileKeys::TAInvert,
+                    ui_settings.thermal_assistant_invert);
     CommonInterface::main_window->ReinitialiseLayout();
 
   changed |= SaveValue(EnableThermalProfile, ProfileKeys::EnableThermalProfile,

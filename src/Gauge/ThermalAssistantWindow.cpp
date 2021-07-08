@@ -66,9 +66,8 @@ ThermalAssistantWindow::OnPaintBuffer(Canvas &canvas)
 #ifdef ENABLE_OPENGL
   if (transparent) {
     const ScopeAlphaBlend alpha_blend;
-
     canvas.SelectBlackPen();
-    canvas.Select(Brush(renderer.GetLook().background_color.WithAlpha(0xd0)));
+    canvas.Select(Brush(renderer.GetLook().circle_fill.WithAlpha(0xd0)));
     DrawCircle(canvas);
   } else
 #endif

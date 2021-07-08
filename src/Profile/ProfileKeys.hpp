@@ -144,6 +144,7 @@ extern const char EnableFLARMGauge[];
 extern const char AutoCloseFlarmDialog[];
 extern const char TAPosition[];
 extern const char TAType[];
+extern const char TAInvert[];
 extern const char EnableTAGauge[];
 extern const char EnableThermalProfile[];
 extern const char TrailDrift[];

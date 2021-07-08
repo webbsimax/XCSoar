@@ -38,6 +38,8 @@ UISettings::SetDefaults()
 
   thermal_assistant_type = ThermalAssistantType::POLYGON;
 
+  thermal_assistant_invert = false;
+
   enable_airspace_warning_dialog = true;
 
   popup_message_position = PopupMessagePosition::CENTER;

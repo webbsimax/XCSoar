@@ -153,6 +153,7 @@ const char AutoCloseFlarmDialog[] = "AutoCloseFlarmDialog";
 const char EnableTAGauge[] = "EnableTAGauge";
 const char TAPosition[] = "TAPosition";
 const char TAType[] = "TAType";
+const char TAInvert[] = "TAInvert";
 const char EnableThermalProfile[] = "EnableThermalProfile";
 const char GliderScreenPosition[] = "GliderScreenPosition";
 const char SetSystemTimeFromGPS[] = "SetSystemTimeFromGPS";

@@ -34,8 +34,9 @@ struct ThermalAssistantLook {
   static constexpr Color text_color = COLOR_BLACK;
   static constexpr Color polygon_fill_color{0xCC, 0xCC, 0xFF};
   static constexpr Color polygon_border_color = COLOR_BLUE;
+  static constexpr Color background_color = COLOR_WHITE;
 
-  Color background_color;
+  Color circle_fill;
   Brush polygon_brush;
 
   Pen plane_pen, polygon_pen;

@@ -70,6 +70,9 @@ struct UISettings {
     BOTH,
   } thermal_assistant_type;
 
+  /** Thermal Assistant Invert Colours */
+  bool thermal_assistant_invert;
+
   /** Enable warning dialog */
   bool enable_airspace_warning_dialog;
 

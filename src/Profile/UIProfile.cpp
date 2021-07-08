@@ -142,6 +142,9 @@ Profile::Load(const ProfileMap &map, UISettings &settings)
         : UISettings::ThermalAssistantPosition::OFF;
     }
   }
+  
+  map.Get(ProfileKeys::TAInvert, settings.thermal_assistant_invert);
+  
 
   map.GetEnum(ProfileKeys::TAType, settings.thermal_assistant_type);
 
